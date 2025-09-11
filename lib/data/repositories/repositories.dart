@@ -31,7 +31,20 @@ class Repositories {
     if (response.statusCode != 200) throw Exception('Failed to update todo');
   }
 
-  Future<void> addTodo() async {}
+  Future<TodoModel> addTodo(TodoModel todo) async {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(todo.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      return TodoModel.fromJson(data);
+    } else {
+      throw Exception('Failed to add todo');
+    }
+  }
 
   Future<void> getTodoDetails() async {}
 }

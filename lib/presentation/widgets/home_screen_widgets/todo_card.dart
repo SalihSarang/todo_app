@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_riverpod/business/todo_provider.dart';
 import 'package:todo_riverpod/data/model/todo_model.dart';
-import 'package:todo_riverpod/presentation/widgets/custom_alert_box.dart';
+import 'package:todo_riverpod/presentation/widgets/common/custom_alert_box.dart';
 
 class TodoCard extends ConsumerWidget {
   final TodoModel todo;
@@ -15,10 +15,10 @@ class TodoCard extends ConsumerWidget {
       child: Card(
         color: Colors.black87,
         child: Stack(
+          alignment: Alignment.center,
           children: [
             ListTile(
               title: Text(todo.title, style: TextStyle(color: Colors.white)),
-              subtitle: Text(todo.id, style: TextStyle(color: Colors.white)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

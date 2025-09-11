@@ -8,8 +8,17 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
     fetchTodos();
   }
 
+  Future<void> addTodo(TodoModel todo) async {
+    try {
+      api.addTodo(todo);
+      fetchTodos();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
   void fetchTodos() async {
-    state = const AsyncValue.loading();
+    if (mounted) state = const AsyncValue.loading();
     try {
       final todos = await api.getTodos();
       state = AsyncValue.data(todos);
@@ -34,21 +43,16 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
       final updatedTodo = updatedTodos.firstWhere((todo) => todo.id == id);
       await api.updateTodoStatus(updatedTodo.id, updatedTodo.isCompleted);
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> deleteTodo(String id) async {
-    final previousState = state;
-
-    state = const AsyncValue.loading();
+    if (mounted) state = const AsyncValue.loading();
 
     try {
       await api.deleteTodo(id);
-
-      state = previousState.whenData(
-        (todos) => todos.where((todo) => todo.id != id).toList(),
-      );
+      fetchTodos();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

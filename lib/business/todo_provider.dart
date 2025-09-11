@@ -11,6 +11,7 @@ final todosProvider = FutureProvider<List<TodoModel>>((ref) async {
 });
 
 final todoStateProvider =
-    StateNotifierProvider<TodoNotifier, AsyncValue<List<TodoModel>>>(
-      (ref) => TodoNotifier(ref.read(apiServiceProvider)),
-    );
+    StateNotifierProvider<TodoNotifier, AsyncValue<List<TodoModel>>>((ref) {
+      ref.keepAlive();
+      return TodoNotifier(ref.read(apiServiceProvider));
+    });
