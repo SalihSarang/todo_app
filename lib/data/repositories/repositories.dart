@@ -46,5 +46,14 @@ class Repositories {
     }
   }
 
-  Future<void> getTodoDetails() async {}
+  Future<TodoModel> getTodoDetails(String id) async {
+    final response = await http.get(Uri.parse('$url/$id'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return TodoModel.fromJson(data);
+    } else {
+      throw Exception('Failed to Load todo Details');
+    }
+  }
 }

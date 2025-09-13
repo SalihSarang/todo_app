@@ -15,3 +15,11 @@ final todoStateProvider =
       ref.keepAlive();
       return TodoNotifier(ref.read(apiServiceProvider));
     });
+
+final todoDetailsProvider = FutureProvider.family<TodoModel, String>((
+  ref,
+  id,
+) async {
+  final api = ref.read(apiServiceProvider);
+  return api.getTodoDetails(id);
+});
