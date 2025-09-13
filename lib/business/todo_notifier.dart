@@ -9,15 +9,23 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   }
 
   Future<void> addTodo(TodoModel todo) async {
+    final currentTodos = state.value ?? [];
+
+    // Show instantly (optimistic)
+    final optimisticTodos = [...currentTodos, todo];
+    state = AsyncValue.data(optimisticTodos);
+
     try {
-      api.addTodo(todo);
-      fetchTodos();
+      final newTodo = await api.addTodo(todo); // API returns created todo
+      // replace optimistic with server-confirmed
+      state = AsyncValue.data([...currentTodos, newTodo]);
     } catch (e, st) {
+      state = AsyncValue.data(currentTodos); // rollback
       state = AsyncValue.error(e, st);
     }
   }
 
-  void fetchTodos() async {
+  Future<void> fetchTodos() async {
     if (mounted) state = const AsyncValue.loading();
     try {
       final todos = await api.getTodos();

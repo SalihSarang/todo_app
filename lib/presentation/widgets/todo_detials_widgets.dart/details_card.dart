@@ -15,23 +15,22 @@ class DetailsCard extends ConsumerWidget {
     return detailsAsync.when(
       data: (data) {
         return SizedBox(
-          height: 300,
-          width: double.infinity,
           child: Card(
             color: Colors.black87,
             margin: const EdgeInsets.all(16),
             child: Padding(
               padding: const EdgeInsets.all(18),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Title : ${data.title}',
+                    data.title,
                     style: const TextStyle(color: Colors.white, fontSize: 20),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Details : ${data.details}',
+                    data.details,
                     style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ],
