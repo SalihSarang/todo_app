@@ -53,7 +53,7 @@ class Repositories {
     }
   }
 
-  Future<TodoModel> addTodo(TodoModel todo) async {
+  Future<void> addTodo(TodoModel todo) async {
     final sw = Stopwatch()..start();
 
     final response = await http.post(
@@ -67,12 +67,8 @@ class Repositories {
 
     if (response.statusCode == 201) {
       final decodeWatch = Stopwatch()..start();
-      final data = jsonDecode(response.body);
-      final newTodo = TodoModel.fromJson(data);
       decodeWatch.stop();
-
       log.i("Decoding new todo took: ${decodeWatch.elapsedMilliseconds} ms");
-      return newTodo;
     } else {
       throw Exception('Failed to add todo');
     }

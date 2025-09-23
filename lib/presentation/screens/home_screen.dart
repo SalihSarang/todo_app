@@ -11,14 +11,17 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text('Home Page')),
+      appBar: AppBar(title: const Text('Home Page')),
+
       body: RefreshIndicator(
         onRefresh: () async => ref.invalidate(todoStateProvider),
         child: TodoListView(),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => navigateTo(context: context, screen: AddTodoScreen()),
-        child: Icon(Icons.add_rounded, size: 35),
+
+        child: const Icon(Icons.add_rounded, size: 35),
       ),
     );
   }

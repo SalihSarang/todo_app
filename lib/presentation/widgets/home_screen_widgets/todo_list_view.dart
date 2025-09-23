@@ -26,7 +26,7 @@ class TodoListView extends ConsumerWidget {
         );
       },
       error: (error, stackTrace) => ErrorView(error: error),
-      loading: () => LoadingState(),
+      loading: () => const LoadingState(),
     );
   }
 }

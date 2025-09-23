@@ -26,7 +26,7 @@ class TodoAddForm extends ConsumerWidget {
             validator: (v) => validateTodoTitle(v),
           ),
 
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
 
           CustomTextFormField(
             controller: _detailsCtrl,
@@ -36,7 +36,7 @@ class TodoAddForm extends ConsumerWidget {
             validator: (v) => validateTodoDetails(v),
           ),
 
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -55,7 +55,7 @@ class TodoAddForm extends ConsumerWidget {
                 Navigator.pop(context);
               }
             },
-            child: Text('Save'),
+            child: const Text('Save'),
           ),
         ],
       ),

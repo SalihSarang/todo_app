@@ -37,7 +37,7 @@ class TodoCard extends ConsumerWidget {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     color: Colors.red,
                     onPressed: () async {
                       showDialog(

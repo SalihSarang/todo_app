@@ -30,7 +30,7 @@ class DetailsCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    data.details,
+                    data.title,
                     style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ],

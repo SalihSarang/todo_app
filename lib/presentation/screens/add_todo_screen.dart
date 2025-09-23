@@ -8,7 +8,7 @@ class AddTodoScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Todo')),
+      appBar: AppBar(title: const Text('Add Todo')),
 
       body: Padding(
         padding: const EdgeInsets.all(20),

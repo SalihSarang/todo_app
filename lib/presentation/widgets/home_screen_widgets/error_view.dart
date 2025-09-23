@@ -11,14 +11,14 @@ class ErrorView extends ConsumerWidget {
     return Column(
       children: [
         Center(
-          child: Text(
+          child: const Text(
             'Something Went Wrong, Please Try again',
             style: TextStyle(fontSize: 25),
           ),
         ),
         ElevatedButton(
           onPressed: () => ref.refresh(todoStateProvider),
-          child: Text('Retry'),
+          child: const Text('Retry'),
         ),
       ],
     );
