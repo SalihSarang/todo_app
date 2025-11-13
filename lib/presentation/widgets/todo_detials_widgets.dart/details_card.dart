@@ -8,6 +8,32 @@ class DetailsCard extends ConsumerWidget {
   final String id;
   const DetailsCard({super.key, required this.id});
 
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _formatTime(String time24) {
+    try {
+      final parts = time24.split(':');
+      if (parts.length != 2) return time24;
+
+      final hour = int.parse(parts[0]);
+      final minute = parts[1].padLeft(2, '0');
+
+      if (hour == 0) {
+        return '12:$minute AM';
+      } else if (hour < 12) {
+        return '$hour:$minute AM';
+      } else if (hour == 12) {
+        return '12:$minute PM';
+      } else {
+        return '${hour - 12}:$minute PM';
+      }
+    } catch (e) {
+      return time24;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailsAsync = ref.watch(todoDetailsProvider(id));
@@ -21,18 +47,65 @@ class DetailsCard extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(18),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     data.title,
-                    style: const TextStyle(color: Colors.white, fontSize: 20),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   Text(
-                    data.title,
+                    data.details,
                     style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
+                  if (data.date != null || data.time != null) ...[
+                    const SizedBox(height: 20),
+                    const Divider(color: Colors.white54),
+                    const SizedBox(height: 12),
+                    if (data.date != null)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            color: Colors.white70,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _formatDate(data.date!),
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (data.date != null && data.time != null)
+                      const SizedBox(height: 12),
+                    if (data.time != null)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            color: Colors.white70,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _formatTime(data.time!),
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
                 ],
               ),
             ),

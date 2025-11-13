@@ -9,7 +9,7 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   }
 
   Future<void> addTodo(TodoModel todo) async {
-    if (mounted) state = const AsyncValue.loading();
+    state = const AsyncValue.loading();
     try {
       await api.addTodo(todo);
       await fetchTodos();
@@ -19,7 +19,7 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   }
 
   Future<void> fetchTodos() async {
-    if (mounted) state = const AsyncValue.loading();
+    state = const AsyncValue.loading();
     try {
       final todos = await api.getTodos();
       state = AsyncValue.data(todos);
@@ -49,11 +49,11 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   }
 
   Future<void> deleteTodo(String id) async {
-    if (mounted) state = const AsyncValue.loading();
+    state = const AsyncValue.loading();
 
     try {
       await api.deleteTodo(id);
-      fetchTodos();
+      await fetchTodos();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_riverpod/business/todo_notifier.dart';
 import 'package:todo_riverpod/data/model/todo_model.dart';
@@ -23,3 +24,7 @@ final todoDetailsProvider = FutureProvider.family<TodoModel, String>((
   final api = ref.read(apiServiceProvider);
   return api.getTodoDetails(id);
 });
+
+final selectedDateProvider = StateProvider<DateTime?>((ref) => null);
+
+final selectedTimeProvider = StateProvider<TimeOfDay?>((ref) => null);

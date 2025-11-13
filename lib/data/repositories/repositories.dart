@@ -1,106 +1,101 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:logger/web.dart';
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logger/logger.dart';
 import 'package:todo_riverpod/data/model/todo_model.dart';
 
-final url = Uri.parse('https://6824452165ba058033998bef.mockapi.io/todos');
-final log = Logger();
+final log = Logger(
+  printer: PrettyPrinter(
+    methodCount: 0,
+    errorMethodCount: 5,
+    lineLength: 90,
+    colors: true,
+    printEmojis: true,
+  ),
+);
+
+final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+final CollectionReference _todoCollection = _firestore.collection('todos');
 
 class Repositories {
   Future<List<TodoModel>> getTodos() async {
     final sw = Stopwatch()..start();
 
-    final response = await http.get(url);
+    final QuerySnapshot snapshot = await _todoCollection.get();
 
     sw.stop();
-    log.i("GET /todos took: ${sw.elapsedMilliseconds} ms");
+    log.i("GET todos (Firestore) took: ${sw.elapsedMilliseconds} ms");
 
-    if (response.statusCode == 200) {
-      final decodeWatch = Stopwatch()..start();
-      final List<dynamic> data = jsonDecode(response.body);
-      final todos = data.map((e) => TodoModel.fromJson(e)).toList();
-      decodeWatch.stop();
+    final decodeWatch = Stopwatch()..start();
 
-      log.i("Decoding todos took: ${decodeWatch.elapsedMilliseconds} ms");
-      log.i("Fetched ${todos.length} todos");
+    final todos = snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      data['id'] = doc.id;
+      return TodoModel.fromJson(data);
+    }).toList();
 
-      return todos;
-    } else {
-      throw Exception('Failed to Load');
-    }
+    decodeWatch.stop();
+
+    log.i("Mapping todos took: ${decodeWatch.elapsedMilliseconds} ms");
+    log.i("Fetched ${todos.length} todos successfully");
+
+    return todos;
   }
 
   Future<TodoModel> getTodoDetails(String id) async {
     final sw = Stopwatch()..start();
 
-    final response = await http.get(Uri.parse('$url/$id'));
+    final DocumentSnapshot doc = await _todoCollection.doc(id).get();
 
     sw.stop();
-    log.i("GET /todos/$id took: ${sw.elapsedMilliseconds} ms");
+    log.i("GET todo/$id (Firestore) took: ${sw.elapsedMilliseconds} ms");
 
-    if (response.statusCode == 200) {
+    if (doc.exists && doc.data() != null) {
       final decodeWatch = Stopwatch()..start();
-      final data = jsonDecode(response.body);
+
+      final data = doc.data() as Map<String, dynamic>;
+      data['id'] = doc.id;
       final todo = TodoModel.fromJson(data);
+
       decodeWatch.stop();
 
-      log.i(
-        "Decoding todo details took: ${decodeWatch.elapsedMilliseconds} ms",
-      );
+      log.i("Mapping todo details took: ${decodeWatch.elapsedMilliseconds} ms");
+      log.i("Fetched todo '$id' successfully");
+
       return todo;
     } else {
-      throw Exception('Failed to Load todo Details');
+      log.e(" Todo with ID '$id' not found");
+      throw Exception('Todo with ID $id not found');
     }
   }
 
   Future<void> addTodo(TodoModel todo) async {
     final sw = Stopwatch()..start();
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(todo.toJson()),
-    );
+    await _todoCollection.add(todo.toJson());
 
     sw.stop();
-    log.i("POST /todos took: ${sw.elapsedMilliseconds} ms");
-
-    if (response.statusCode == 201) {
-      final decodeWatch = Stopwatch()..start();
-      decodeWatch.stop();
-      log.i("Decoding new todo took: ${decodeWatch.elapsedMilliseconds} ms");
-    } else {
-      throw Exception('Failed to add todo');
-    }
+    log.i("POST todo (Firestore) took: ${sw.elapsedMilliseconds} ms");
+    log.i(" Added new todo successfully");
   }
 
   Future<void> deleteTodo(String id) async {
     final sw = Stopwatch()..start();
 
-    final response = await http.delete(Uri.parse('$url/$id'));
+    await _todoCollection.doc(id).delete();
 
     sw.stop();
-    log.i("DELETE /todos/$id took: ${sw.elapsedMilliseconds} ms");
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed To Delete');
-    }
+    log.i("DELETE todo/$id (Firestore) took: ${sw.elapsedMilliseconds} ms");
+    log.i(" Deleted todo $id successfully");
   }
 
   Future<void> updateTodoStatus(String id, bool isCompleted) async {
     final sw = Stopwatch()..start();
 
-    final response = await http.put(
-      Uri.parse('$url/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'isCompleted': isCompleted}),
-    );
+    await _todoCollection.doc(id).update({'isCompleted': isCompleted});
 
     sw.stop();
-    log.i("PUT /todos/$id took: ${sw.elapsedMilliseconds} ms");
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to update todo');
-    }
+    log.i("PUT todo/$id (Firestore) took: ${sw.elapsedMilliseconds} ms");
+    log.i(" Updated status for todo $id to $isCompleted");
   }
 }

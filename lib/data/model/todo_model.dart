@@ -3,12 +3,16 @@ class TodoModel {
   final String title;
   final String details;
   final bool isCompleted;
+  final DateTime? date;
+  final String? time;
 
   TodoModel({
     required this.id,
     required this.title,
     required this.details,
     required this.isCompleted,
+    this.date,
+    this.time,
   });
 
   factory TodoModel.fromJson(Map<String, dynamic> json) {
@@ -17,6 +21,10 @@ class TodoModel {
       title: json['title'] ?? '',
       details: json['details'] ?? '',
       isCompleted: json['isCompleted'] ?? false,
+      date: json['date'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['date'] as int)
+          : null,
+      time: json['time'] as String?,
     );
   }
   TodoModel copyWith({bool? isCompleted}) {
@@ -25,6 +33,8 @@ class TodoModel {
       title: title,
       details: details,
       isCompleted: isCompleted ?? this.isCompleted,
+      date: date,
+      time: time,
     );
   }
 
@@ -34,6 +44,8 @@ class TodoModel {
       'title': title,
       'details': details,
       'isCompleted': isCompleted,
+      if (date != null) 'date': date!.millisecondsSinceEpoch,
+      if (time != null) 'time': time,
     };
   }
 }

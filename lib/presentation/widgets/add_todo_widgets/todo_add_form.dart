@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_riverpod/business/todo_provider.dart';
 import 'package:todo_riverpod/data/model/todo_model.dart';
 import 'package:todo_riverpod/presentation/widgets/add_todo_widgets/text_field.dart';
+import 'package:todo_riverpod/presentation/widgets/add_todo_widgets/date_picker_widget.dart';
+import 'package:todo_riverpod/presentation/widgets/add_todo_widgets/time_picker_widget.dart';
 import 'package:todo_riverpod/utils/form_validation.dart';
 import 'package:todo_riverpod/utils/unique_id.dart';
 import 'package:todo_riverpod/utils/validate_form.dart';
@@ -15,6 +17,9 @@ class TodoAddForm extends ConsumerWidget {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(selectedDateProvider);
+    final selectedTime = ref.watch(selectedTimeProvider);
+
     return Form(
       key: _formKey,
       child: Column(
@@ -36,6 +41,49 @@ class TodoAddForm extends ConsumerWidget {
             validator: (v) => validateTodoDetails(v),
           ),
 
+          const SizedBox(height: 15),
+
+          DatePickerWidget(
+            label: 'Date',
+            selectedDate: selectedDate,
+            onDateSelected: (date) {
+              ref.read(selectedDateProvider.notifier).state = date;
+
+              // If date changed to today and selected time is in the past, clear the time
+              final currentSelectedTime = ref.read(selectedTimeProvider);
+              if (currentSelectedTime != null) {
+                final now = DateTime.now();
+                final dateOnly = DateTime(date.year, date.month, date.day);
+                final todayOnly = DateTime(now.year, now.month, now.day);
+
+                if (dateOnly.isAtSameMomentAs(todayOnly)) {
+                  final selectedDateTime = DateTime(
+                    now.year,
+                    now.month,
+                    now.day,
+                    currentSelectedTime.hour,
+                    currentSelectedTime.minute,
+                  );
+
+                  if (selectedDateTime.isBefore(now)) {
+                    ref.read(selectedTimeProvider.notifier).state = null;
+                  }
+                }
+              }
+            },
+          ),
+
+          const SizedBox(height: 15),
+
+          TimePickerWidget(
+            label: 'Time',
+            selectedTime: selectedTime,
+            selectedDate: selectedDate,
+            onTimeSelected: (time) {
+              ref.read(selectedTimeProvider.notifier).state = time;
+            },
+          ),
+
           const SizedBox(height: 20),
 
           ElevatedButton(
@@ -43,15 +91,59 @@ class TodoAddForm extends ConsumerWidget {
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
             ),
-            onPressed: () {
+            onPressed: () async {
               if (validateForm(_formKey)) {
+                final selectedTime = ref.read(selectedTimeProvider);
+
+                // Validate that if today's date is selected, time must be in the future
+                if (selectedDate != null && selectedTime != null) {
+                  final now = DateTime.now();
+                  final selectedDateOnly = DateTime(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                  );
+                  final todayOnly = DateTime(now.year, now.month, now.day);
+
+                  if (selectedDateOnly.isAtSameMomentAs(todayOnly)) {
+                    final selectedDateTime = DateTime(
+                      now.year,
+                      now.month,
+                      now.day,
+                      selectedTime.hour,
+                      selectedTime.minute,
+                    );
+
+                    if (selectedDateTime.isBefore(now)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Please select a future time for today',
+                          ),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+                }
+
+                final timeString = selectedTime != null
+                    ? '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}'
+                    : null;
+
                 final todo = TodoModel(
                   id: generateUniqueId(),
                   title: _titleCtrl.text,
                   details: _detailsCtrl.text,
                   isCompleted: false,
+                  date: selectedDate,
+                  time: timeString,
                 );
-                ref.read(todoStateProvider.notifier).addTodo(todo);
+                await ref.read(todoStateProvider.notifier).addTodo(todo);
+                // Reset date and time after saving
+                ref.read(selectedDateProvider.notifier).state = null;
+                ref.read(selectedTimeProvider.notifier).state = null;
                 Navigator.pop(context);
               }
             },
