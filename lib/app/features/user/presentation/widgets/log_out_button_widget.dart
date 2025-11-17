@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:todo_riverpod/app/features/user/utils/show_logout_dialog.dart';
-import 'package:todo_riverpod/app/features/user/utils/show_logout_success.dart';
+import 'package:todo_riverpod/app/features/user/utils/auth_functions/show_logout_dialog.dart';
+import 'package:todo_riverpod/app/features/user/utils/auth_functions/show_logout_success.dart';
+import 'package:todo_riverpod/app/features/user_auth/utils/logout_user.dart';
 
 class LogOutButton extends StatelessWidget {
   const LogOutButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    void onConfirmLogout() {
+    void onConfirmLogout() async {
+      await logout(context);
       showLogoutSuccess(context);
     }
 

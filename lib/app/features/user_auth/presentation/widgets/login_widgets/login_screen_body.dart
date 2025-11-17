@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:todo_riverpod/app/features/user_auth/data/repositories/login_user.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/common/custom_button.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/common/other_login_methods.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/login_widgets/login_form.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/login_widgets/signup_page_option.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/login_widgets/welcome_icon.dart';
-import 'package:todo_riverpod/app/features/user_auth/utils/user_login_fuction.dart';
 
 class LoginScreenBody extends StatelessWidget {
   final TextEditingController emailController;
@@ -39,10 +39,11 @@ class LoginScreenBody extends StatelessWidget {
             ),
 
             CustomButton(
-              onPressed: () => userLogin(
+              onPressed: () => loginUser(
                 formKey: formKey,
                 email: emailController.text,
                 password: passwordController.text,
+                context: context,
               ),
               child: const Text("Login"),
             ),

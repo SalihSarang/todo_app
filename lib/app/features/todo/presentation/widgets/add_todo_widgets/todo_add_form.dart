@@ -49,7 +49,6 @@ class TodoAddForm extends ConsumerWidget {
             onDateSelected: (date) {
               ref.read(selectedDateProvider.notifier).state = date;
 
-              // If date changed to today and selected time is in the past, clear the time
               final currentSelectedTime = ref.read(selectedTimeProvider);
               if (currentSelectedTime != null) {
                 final now = DateTime.now();

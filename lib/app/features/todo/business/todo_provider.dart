@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todo_riverpod/app/features/splash_screen/business/splash_screen_provider.dart';
 import 'package:todo_riverpod/app/features/todo/business/todo_notifier.dart';
 import 'package:todo_riverpod/app/features/todo/data/model/todo_model.dart';
 import 'package:todo_riverpod/app/features/todo/data/repositories/repositories.dart';
 
-final apiServiceProvider = Provider<Repositories>((ref) => Repositories());
+final userIdProvider = Provider<String>((ref) {
+  final authState = ref.watch(authStateProvider);
 
-final todosProvider = FutureProvider<List<TodoModel>>((ref) async {
-  final apiService = ref.read(apiServiceProvider);
-  return apiService.getTodos();
+  return authState.when(
+    data: (user) {
+      if (user == null) throw Exception("User not logged in");
+      return user.uid;
+    },
+    loading: () => "",
+    error: (e, _) => "",
+  );
 });
+
+final apiServiceProvider = Provider<Repositories>((ref) => Repositories());
 
 final todoStateProvider =
     StateNotifierProvider<TodoNotifier, AsyncValue<List<TodoModel>>>((ref) {
-      ref.keepAlive();
-      return TodoNotifier(ref.read(apiServiceProvider));
+      final api = ref.read(apiServiceProvider);
+      final userId = ref.watch(userIdProvider);
+      return TodoNotifier(api, userId);
     });
 
 final todoDetailsProvider = FutureProvider.family<TodoModel, String>((
@@ -22,7 +32,8 @@ final todoDetailsProvider = FutureProvider.family<TodoModel, String>((
   id,
 ) async {
   final api = ref.read(apiServiceProvider);
-  return api.getTodoDetails(id);
+  final userId = ref.watch(userIdProvider);
+  return api.getTodoDetails(userId, id);
 });
 
 final selectedDateProvider = StateProvider<DateTime?>((ref) => null);

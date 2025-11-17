@@ -10,10 +10,7 @@ class AddTodoScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Add Todo')),
 
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(children: [TodoAddForm()]),
-      ),
+      body: Padding(padding: const EdgeInsets.all(20), child: TodoAddForm()),
     );
   }
 }

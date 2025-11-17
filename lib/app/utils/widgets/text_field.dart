@@ -10,6 +10,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final int? maxLines;
   final int? minLines;
+  final int? maxLength;
 
   const CustomTextFormField({
     super.key,
@@ -22,11 +23,13 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.maxLines,
     this.minLines,
+    this.maxLength,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      maxLength: maxLength,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: controller,
       obscureText: obscureText,
@@ -50,6 +53,7 @@ class CustomTextFormField extends StatelessWidget {
             color: Colors.black,
           );
         }),
+        counterText: '',
         prefixIcon: icon != null ? Icon(icon) : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
         focusedBorder: OutlineInputBorder(

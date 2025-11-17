@@ -4,14 +4,16 @@ import 'package:todo_riverpod/app/features/todo/data/repositories/repositories.d
 
 class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   final Repositories api;
-  TodoNotifier(this.api) : super(const AsyncValue.loading()) {
+  final String userId;
+
+  TodoNotifier(this.api, this.userId) : super(const AsyncValue.loading()) {
     fetchTodos();
   }
 
   Future<void> addTodo(TodoModel todo) async {
     state = const AsyncValue.loading();
     try {
-      await api.addTodo(todo);
+      await api.addTodo(userId, todo);
       await fetchTodos();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -21,7 +23,7 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   Future<void> fetchTodos() async {
     state = const AsyncValue.loading();
     try {
-      final todos = await api.getTodos();
+      final todos = await api.getTodos(userId);
       state = AsyncValue.data(todos);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -42,7 +44,11 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
     state = AsyncValue.data(updatedTodos);
     try {
       final updatedTodo = updatedTodos.firstWhere((todo) => todo.id == id);
-      await api.updateTodoStatus(updatedTodo.id, updatedTodo.isCompleted);
+      await api.updateTodoStatus(
+        userId,
+        updatedTodo.id,
+        updatedTodo.isCompleted,
+      );
     } catch (e, st) {
       if (mounted) state = AsyncValue.error(e, st);
     }
@@ -52,7 +58,7 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
     state = const AsyncValue.loading();
 
     try {
-      await api.deleteTodo(id);
+      await api.deleteTodo(userId, id);
       await fetchTodos();
     } catch (e, st) {
       state = AsyncValue.error(e, st);

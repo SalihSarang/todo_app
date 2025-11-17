@@ -6,13 +6,14 @@ import 'package:todo_riverpod/app/features/user/presentation/widgets/user_profil
 import 'package:todo_riverpod/app/features/user_auth/data/model/user_model.dart';
 
 class UserProfileScreenBody extends StatelessWidget {
-  final User user;
+  final UserModel user;
+
   const UserProfileScreenBody({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -21,7 +22,7 @@ class UserProfileScreenBody extends StatelessWidget {
           ProfileDetailRow(
             icon: Icons.person_outline,
             label: 'USER NAME',
-            value: user.displayName,
+            value: user.name,
           ),
           ProfileDetailRow(
             icon: Icons.mail_outline,

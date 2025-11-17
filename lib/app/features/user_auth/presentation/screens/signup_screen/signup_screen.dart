@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:todo_riverpod/app/features/user_auth/presentation/screens/login_screen/login_screen.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/common/custom_button.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/common/other_login_methods.dart';
+import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/signup_widgets/login_option.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/signup_widgets/sign_up_form.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/signup_widgets/title_widget.dart';
-import 'package:todo_riverpod/app/utils/functions/navigator.dart';
-import 'package:todo_riverpod/app/utils/widgets/text_field.dart';
+import 'package:todo_riverpod/app/features/user_auth/data/repositories/register_user.dart';
 
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key});
@@ -28,8 +27,7 @@ class SignupScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 40),
 
-              // Title
-              TitleWidget(),
+              const TitleWidget(),
 
               const SizedBox(height: 40),
               SignUpForm(
@@ -42,41 +40,28 @@ class SignupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
-              // Sign-Up Button
               CustomButton(
                 onPressed: () {
-                  // Collect user inputs
-                  // final name = _nameController.text.trim();
-                  // final email = _emailController.text.trim();
-                  // final password = _passwordController.text.trim();
-                  // final confirmPassword = _confirmPasswordController.text
-                  //     .trim();
-                  // final phone = _phoneController.text.trim();
+                  registerUser(
+                    formKey: _formKey,
+                    name: _nameController.text.trim(),
+                    email: _emailController.text.trim(),
+                    password: _passwordController.text.trim(),
+                    comfirmPassword: _confirmPasswordController.text.trim(),
+                    phone: _phoneController.text.trim(),
+                    context: context,
+                  );
                 },
-                child: Text('Sign Up'),
+                child: const Text('Sign Up'),
               ),
 
               const SizedBox(height: 20),
 
-              // Social Signup
-              OtherLoginMethods(),
+              const OtherLoginMethods(),
 
               const SizedBox(height: 20),
 
-              // Already have account
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Already have an account?"),
-                  TextButton(
-                    onPressed: () => pushReplacementTo(
-                      context: context,
-                      screen: LoginScreen(),
-                    ),
-                    child: const Text("Login"),
-                  ),
-                ],
-              ),
+              const LoginOption(),
             ],
           ),
         ),

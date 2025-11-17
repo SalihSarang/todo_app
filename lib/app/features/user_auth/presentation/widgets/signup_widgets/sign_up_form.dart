@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_riverpod/app/features/user_auth/utils/signup_screen/signup_validations.dart';
 import 'package:todo_riverpod/app/utils/widgets/text_field.dart';
 
 class SignUpForm extends StatelessWidget {
@@ -22,6 +23,7 @@ class SignUpForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: formKey,
       child: Column(
         children: [
           // Name
@@ -29,6 +31,7 @@ class SignUpForm extends StatelessWidget {
             controller: nameController,
             label: 'Name',
             hint: 'Enter your name',
+            validator: (value) => SignupValidators.validateName(value),
           ),
           const SizedBox(height: 20),
 
@@ -38,6 +41,7 @@ class SignUpForm extends StatelessWidget {
             keyboardType: TextInputType.emailAddress,
             label: 'Email',
             hint: 'Enter your email',
+            validator: (value) => SignupValidators.validateEmail(value),
           ),
 
           const SizedBox(height: 20),
@@ -48,6 +52,7 @@ class SignUpForm extends StatelessWidget {
             obscureText: true,
             maxLines: 1,
             label: 'Password',
+            validator: (value) => SignupValidators.validatePassword(value),
           ),
 
           const SizedBox(height: 20),
@@ -58,16 +63,22 @@ class SignUpForm extends StatelessWidget {
             obscureText: true,
             maxLines: 1,
             label: 'Confirm Password',
+            validator: (value) => SignupValidators.validateConfirmPassword(
+              value,
+              passwordController.text.trim(),
+            ),
           ),
 
           const SizedBox(height: 20),
 
           // Phone
-          CustomTextFormField(
-            controller: phoneController,
-            keyboardType: TextInputType.phone,
-            label: 'Phone',
-          ),
+          // CustomTextFormField(
+          //   controller: phoneController,
+          //   keyboardType: TextInputType.phone,
+          //   maxLength: 10,
+          //   label: 'Phone',
+          //   validator: (value) => SignupValidators.validatePhone(value),
+          // ),
         ],
       ),
     );

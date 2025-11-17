@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_riverpod/app/features/user_auth/utils/login_screen_validation.dart';
+import 'package:todo_riverpod/app/features/user_auth/utils/login_screen_functions/login_screen_validation.dart';
 import 'package:todo_riverpod/app/utils/widgets/text_field.dart';
 
 class LoginForm extends StatelessWidget {
