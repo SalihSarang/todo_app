@@ -10,6 +10,11 @@ class UserRepository {
     await _usersRef.doc(user.uid).set(user.toJson());
   }
 
+  Future<bool> userExists(String uid) async {
+    final doc = await _usersRef.doc(uid).get();
+    return doc.exists;
+  }
+
   Future<UserModel> getUser(String uid) async {
     final doc = await _usersRef.doc(uid).get();
 

@@ -7,6 +7,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
   final bool obscureText;
   final int? maxLines;
   final int? minLines;
@@ -20,6 +21,7 @@ class CustomTextFormField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.validator,
     this.controller,
+    this.onChanged,
     this.obscureText = false,
     this.maxLines,
     this.minLines,
@@ -36,6 +38,7 @@ class CustomTextFormField extends StatelessWidget {
       keyboardType: keyboardType,
       minLines: minLines,
       maxLines: maxLines,
+      onChanged: onChanged,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,

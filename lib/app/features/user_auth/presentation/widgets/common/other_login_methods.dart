@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_riverpod/app/features/user_auth/data/repositories/google_auth/google_auth.dart';
 
 class OtherLoginMethods extends StatelessWidget {
   const OtherLoginMethods({super.key});
@@ -14,7 +15,12 @@ class OtherLoginMethods extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               InkWell(
-                onTap: () {},
+                onTap: () async {
+                  final user = await GoogleAuthService().signInWithGoogle();
+                  if (user != null && context.mounted) {
+                    Navigator.pushReplacementNamed(context, '/home');
+                  }
+                },
                 child: Image.asset(
                   'assets/google_icon.png',
                   height: 35,

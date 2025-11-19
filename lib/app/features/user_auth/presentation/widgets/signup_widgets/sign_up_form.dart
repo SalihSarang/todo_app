@@ -9,6 +9,8 @@ class SignUpForm extends StatelessWidget {
   final TextEditingController phoneController;
   final TextEditingController confirmPasswordController;
   final GlobalKey<FormState> formKey;
+  final String? errorMessage;
+  final VoidCallback? onInputChanged;
 
   const SignUpForm({
     super.key,
@@ -18,6 +20,8 @@ class SignUpForm extends StatelessWidget {
     required this.phoneController,
     required this.formKey,
     required this.confirmPasswordController,
+    this.errorMessage,
+    this.onInputChanged,
   });
 
   @override
@@ -32,16 +36,30 @@ class SignUpForm extends StatelessWidget {
             label: 'Name',
             hint: 'Enter your name',
             validator: (value) => SignupValidators.validateName(value),
+            onChanged: (_) => onInputChanged?.call(),
           ),
           const SizedBox(height: 20),
 
-          // Email
+          // Email error message + field
+          if (errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                errorMessage!,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+
           CustomTextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             label: 'Email',
             hint: 'Enter your email',
             validator: (value) => SignupValidators.validateEmail(value),
+            onChanged: (_) => onInputChanged?.call(),
           ),
 
           const SizedBox(height: 20),
@@ -53,6 +71,7 @@ class SignUpForm extends StatelessWidget {
             maxLines: 1,
             label: 'Password',
             validator: (value) => SignupValidators.validatePassword(value),
+            onChanged: (_) => onInputChanged?.call(),
           ),
 
           const SizedBox(height: 20),
@@ -67,6 +86,7 @@ class SignUpForm extends StatelessWidget {
               value,
               passwordController.text.trim(),
             ),
+            onChanged: (_) => onInputChanged?.call(),
           ),
 
           const SizedBox(height: 20),

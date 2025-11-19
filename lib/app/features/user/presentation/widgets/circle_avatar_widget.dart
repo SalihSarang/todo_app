@@ -10,7 +10,7 @@ class CircleAvatarWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedImage = ref.watch(pickedImageProvider);
     final userState = ref.watch(profileNotifierProvider);
-    final user = userState.valueOrNull;
+    final user = userState.value;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 30),
@@ -71,7 +71,7 @@ class CircleAvatarWidget extends ConsumerWidget {
             }
           } finally {
             if (context.mounted) {
-              Navigator.of(context).pop() // Close loading dialog
+              Navigator.of(context).pop();
             }
           }
         },
