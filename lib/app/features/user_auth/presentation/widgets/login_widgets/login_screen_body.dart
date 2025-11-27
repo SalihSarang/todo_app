@@ -7,6 +7,7 @@ import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/common
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/login_widgets/login_form.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/login_widgets/signup_page_option.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/login_widgets/welcome_icon.dart';
+import 'package:todo_riverpod/app/features/user_auth/business/auth_loading_provider.dart';
 
 final loginErrorProvider = StateProvider.autoDispose<String?>((ref) => null);
 
@@ -25,6 +26,7 @@ class LoginScreenBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authError = ref.watch(loginErrorProvider);
+    final isLoading = ref.watch(authLoadingProvider);
 
     void clearError() {
       ref.read(loginErrorProvider.notifier).state = null;
@@ -51,14 +53,26 @@ class LoginScreenBody extends ConsumerWidget {
               onInputChanged: clearError,
             ),
             CustomButton(
-              onPressed: () => loginUser(
-                formKey: formKey,
-                email: emailController.text,
-                password: passwordController.text,
-                context: context,
-                onError: setError,
-              ),
-              child: const Text("Login"),
+              onPressed: isLoading
+                  ? () {}
+                  : () => loginUser(
+                      formKey: formKey,
+                      email: emailController.text,
+                      password: passwordController.text,
+                      context: context,
+                      ref: ref,
+                      onError: setError,
+                    ),
+              child: isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text("Login"),
             ),
             const SizedBox(height: 20),
             OtherLoginMethods(),

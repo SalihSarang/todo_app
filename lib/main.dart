@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,17 +15,38 @@ import 'package:todo_riverpod/firebase_options.dart';
 
 RemoteMessage? initialMessage;
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await initFirebaseNotification();
-  initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-  runApp(ProviderScope(child: MyApp()));
+  await runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      await initFirebaseNotification();
+
+      FlutterError.onError =
+          FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+      initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+      await FirebaseAnalytics.instance.logAppOpen();
+
+      runApp(ProviderScope(child: MyApp()));
+    },
+    (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    },
+  );
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
-  final analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(
+    analytics: analytics,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +57,6 @@ class MyApp extends StatelessWidget {
       }
     });
 
-    final observer = FirebaseAnalyticsObserver(analytics: analytics);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorObservers: [observer],

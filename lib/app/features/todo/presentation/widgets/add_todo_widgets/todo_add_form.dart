@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_riverpod/app/features/todo/business/todo_provider.dart';
@@ -143,6 +144,17 @@ class TodoAddForm extends ConsumerWidget {
                 // Reset date and time after saving
                 ref.read(selectedDateProvider.notifier).state = null;
                 ref.read(selectedTimeProvider.notifier).state = null;
+
+                FirebaseAnalytics.instance.logEvent(
+                  name: 'todo_created',
+                  parameters: {
+                    'source': 'fab_button',
+                    'has_date': selectedDate != null,
+                    'has_time': selectedTime != null,
+                    'title_length': _titleCtrl.text.length,
+                  },
+                );
+
                 Navigator.pop(context);
               }
             },

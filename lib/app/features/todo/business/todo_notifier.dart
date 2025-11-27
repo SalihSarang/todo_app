@@ -1,7 +1,9 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:todo_riverpod/app/features/todo/data/model/todo_model.dart';
 import 'package:todo_riverpod/app/features/todo/data/repositories/repositories.dart';
+import 'package:todo_riverpod/app/utils/functions/analytics_utils.dart';
 
 class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   final Repositories api;
@@ -15,8 +17,12 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
     state = const AsyncValue.loading();
     try {
       await api.addTodo(userId, todo);
+
+      await logTaskCreated(taskName: todo.title);
+
       await fetchTodos();
     } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st);
       state = AsyncValue.error(e, st);
     }
   }
@@ -27,6 +33,7 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
       final todos = await api.getTodos(userId);
       state = AsyncValue.data(todos);
     } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st);
       state = AsyncValue.error(e, st);
     }
   }
@@ -51,6 +58,7 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
         updatedTodo.isCompleted,
       );
     } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st);
       if (mounted) state = AsyncValue.error(e, st);
     }
   }
@@ -60,8 +68,12 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
 
     try {
       await api.deleteTodo(userId, id);
+
+      await logTaskDeleted(taskId: id);
+
       await fetchTodos();
     } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st);
       state = AsyncValue.error(e, st);
     }
   }

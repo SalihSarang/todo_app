@@ -7,6 +7,7 @@ import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/common
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/signup_widgets/login_option.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/signup_widgets/sign_up_form.dart';
 import 'package:todo_riverpod/app/features/user_auth/presentation/widgets/signup_widgets/title_widget.dart';
+import 'package:todo_riverpod/app/features/user_auth/business/auth_loading_provider.dart';
 
 final signupErrorProvider = StateProvider.autoDispose<String?>((ref) => null);
 
@@ -23,6 +24,7 @@ class SignupScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authError = ref.watch(signupErrorProvider);
+    final isLoading = ref.watch(authLoadingProvider);
 
     void setError(String? message) {
       ref.read(signupErrorProvider.notifier).state = message;
@@ -50,19 +52,32 @@ class SignupScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 30),
               CustomButton(
-                onPressed: () {
-                  registerUser(
-                    formKey: _formKey,
-                    name: _nameController.text.trim(),
-                    email: _emailController.text.trim(),
-                    password: _passwordController.text.trim(),
-                    comfirmPassword: _confirmPasswordController.text.trim(),
-                    phone: _phoneController.text.trim(),
-                    context: context,
-                    onError: setError,
-                  );
-                },
-                child: const Text('Sign Up'),
+                onPressed: isLoading
+                    ? () {}
+                    : () {
+                        registerUser(
+                          formKey: _formKey,
+                          name: _nameController.text.trim(),
+                          email: _emailController.text.trim(),
+                          password: _passwordController.text.trim(),
+                          comfirmPassword: _confirmPasswordController.text
+                              .trim(),
+                          phone: _phoneController.text.trim(),
+                          context: context,
+                          ref: ref,
+                          onError: setError,
+                        );
+                      },
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('Sign Up'),
               ),
               const SizedBox(height: 20),
               const OtherLoginMethods(),
