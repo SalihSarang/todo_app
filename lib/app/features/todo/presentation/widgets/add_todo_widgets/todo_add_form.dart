@@ -149,8 +149,8 @@ class TodoAddForm extends ConsumerWidget {
                   name: 'todo_created',
                   parameters: {
                     'source': 'fab_button',
-                    'has_date': selectedDate != null,
-                    'has_time': selectedTime != null,
+                    'has_date': (selectedDate != null).toString(),
+                    'has_time': (selectedTime != null).toString(),
                     'title_length': _titleCtrl.text.length,
                   },
                 );

@@ -20,8 +20,6 @@ class TimePickerWidget extends StatelessWidget {
     final now = DateTime.now();
     final currentTime = TimeOfDay.fromDateTime(now);
 
-    // If today's date is selected, use current time as minimum
-    // Otherwise, allow any time
     TimeOfDay initialTime;
     if (selectedTime != null) {
       initialTime = selectedTime!;
@@ -33,7 +31,6 @@ class TimePickerWidget extends StatelessWidget {
       );
       final todayOnly = DateTime(now.year, now.month, now.day);
 
-      // If selected date is today, use current time, otherwise use 12:00 AM
       if (selectedDateOnly.isAtSameMomentAs(todayOnly)) {
         initialTime = currentTime;
       } else {
@@ -62,7 +59,6 @@ class TimePickerWidget extends StatelessWidget {
     );
 
     if (picked != null && picked != selectedTime) {
-      // Validate that if today's date is selected, time must be in the future
       if (selectedDate != null) {
         final selectedDateOnly = DateTime(
           selectedDate!.year,
@@ -81,7 +77,6 @@ class TimePickerWidget extends StatelessWidget {
           );
 
           if (pickedDateTime.isBefore(now)) {
-            // Show error message
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Please select a future time'),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:todo_riverpod/app/features/todo/data/model/todo_model.dart';
 import 'package:todo_riverpod/app/features/todo/data/repositories/repositories.dart';
 import 'package:todo_riverpod/app/utils/functions/analytics_utils.dart';
+import 'package:todo_riverpod/app/utils/task_notification_helper.dart';
 
 class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   final Repositories api;
@@ -19,6 +20,9 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
       await api.addTodo(userId, todo);
 
       await logTaskCreated(taskName: todo.title);
+
+      // Schedule notifications for the task (exact time, 10 min, 30 min before)
+      await TaskNotificationHelper.scheduleTaskNotifications(todo);
 
       await fetchTodos();
     } catch (e, st) {
@@ -57,6 +61,15 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
         updatedTodo.id,
         updatedTodo.isCompleted,
       );
+
+      // Handle notifications based on completion status
+      if (updatedTodo.isCompleted) {
+        // Task completed - show celebration and cancel pending notifications
+        await TaskNotificationHelper.showTaskCompletedNotification(updatedTodo);
+      } else {
+        // Task uncompleted - reschedule notifications
+        await TaskNotificationHelper.scheduleTaskNotifications(updatedTodo);
+      }
     } catch (e, st) {
       FirebaseCrashlytics.instance.recordError(e, st);
       if (mounted) state = AsyncValue.error(e, st);
@@ -70,6 +83,9 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
       await api.deleteTodo(userId, id);
 
       await logTaskDeleted(taskId: id);
+
+      // Cancel all pending notifications for this task
+      await TaskNotificationHelper.cancelTaskNotifications(id);
 
       await fetchTodos();
     } catch (e, st) {

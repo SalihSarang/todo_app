@@ -11,6 +11,7 @@ import 'package:todo_riverpod/app/features/todo/presentation/screens/home_screen
 import 'package:todo_riverpod/app/features/user_auth/presentation/screens/login_screen/login_screen.dart';
 import 'package:todo_riverpod/app/utils/functions/handle_initial_message.dart';
 import 'package:todo_riverpod/app/utils/functions/init_firebase.dart';
+import 'package:todo_riverpod/app/utils/notification_service.dart';
 import 'package:todo_riverpod/firebase_options.dart';
 
 RemoteMessage? initialMessage;
@@ -31,6 +32,18 @@ Future<void> main() async {
       initialMessage = await FirebaseMessaging.instance.getInitialMessage();
 
       await FirebaseAnalytics.instance.logAppOpen();
+
+      // Initialize local notifications
+      await NotificationService().initialize();
+
+      // Test notification
+      Future.delayed(const Duration(seconds: 5), () {
+        NotificationService().showNotification(
+          id: 999,
+          title: 'Test Notification',
+          body: 'If you see this, notifications are working!',
+        );
+      });
 
       runApp(ProviderScope(child: MyApp()));
     },
