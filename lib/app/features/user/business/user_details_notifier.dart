@@ -48,4 +48,16 @@ class ProfileNotifier extends StateNotifier<AsyncValue<UserModel>> {
     final updated = current.copyWith(imgURL: url);
     state = AsyncValue.data(updated);
   }
+
+  Future<void> updateAddress(String address) async {
+    final current = state.value;
+    if (current == null) return;
+
+    if (uid == null || uid!.isEmpty) return;
+
+    final updated = current.copyWith(address: address);
+    state = AsyncValue.data(updated);
+
+    await repo.updateUser(updated);
+  }
 }

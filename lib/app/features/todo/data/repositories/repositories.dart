@@ -44,6 +44,16 @@ class Repositories {
     return todos;
   }
 
+  Stream<List<TodoModel>> getTodoStream(String userId) {
+    return _userTodoCollection(userId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id;
+        return TodoModel.fromJson(data);
+      }).toList();
+    });
+  }
+
   Future<TodoModel> getTodoDetails(String userId, String todoId) async {
     final sw = Stopwatch()..start();
 

@@ -33,10 +33,8 @@ Future<void> main() async {
 
       await FirebaseAnalytics.instance.logAppOpen();
 
-      // Initialize local notifications
       await NotificationService().initialize();
 
-      // Test notification
       Future.delayed(const Duration(seconds: 5), () {
         NotificationService().showNotification(
           id: 999,

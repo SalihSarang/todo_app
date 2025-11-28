@@ -10,7 +10,10 @@ class ProfileDetailRow extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    this.onEdit,
   });
+
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +53,11 @@ class ProfileDetailRow extends StatelessWidget {
               ],
             ),
           ),
+          if (onEdit != null)
+            IconButton(
+              icon: const Icon(Icons.edit, size: 20, color: Colors.grey),
+              onPressed: onEdit,
+            ),
         ],
       ),
     );

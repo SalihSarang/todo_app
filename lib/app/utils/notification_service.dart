@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:todo_riverpod/app/utils/notification_constants.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -106,9 +107,9 @@ class NotificationService {
     try {
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
-            'default_channel_v2',
-            'Default Notifications',
-            channelDescription: 'Default notification channel for the app',
+            NotificationConstants.defaultChannelId,
+            NotificationConstants.defaultChannelName,
+            channelDescription: NotificationConstants.defaultChannelDesc,
             importance: Importance.high,
             priority: Priority.high,
             showWhen: true,
@@ -149,9 +150,9 @@ class NotificationService {
     try {
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
-            'scheduled_channel_v2',
-            'Scheduled Notifications',
-            channelDescription: 'Channel for scheduled notifications',
+            NotificationConstants.scheduledChannelId,
+            NotificationConstants.scheduledChannelName,
+            channelDescription: NotificationConstants.scheduledChannelDesc,
             importance: Importance.high,
             priority: Priority.high,
             showWhen: true,

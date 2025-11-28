@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:todo_riverpod/app/features/todo/data/model/todo_model.dart';
+import 'package:todo_riverpod/app/utils/notification_constants.dart';
 import 'package:todo_riverpod/app/utils/notification_service.dart';
 
 class TaskNotificationHelper {
@@ -26,7 +27,9 @@ class TaskNotificationHelper {
       }
 
       final notificationService = NotificationService();
+      final baseId = task.id.hashCode;
 
+      // Calculate times
       final exactTime = taskDateTime;
       final tenMinutesBefore = taskDateTime.subtract(
         const Duration(minutes: 10),
@@ -43,53 +46,62 @@ class TaskNotificationHelper {
         '  -30 min: $thirtyMinutesBefore',
       );
 
-      final baseId = task.id.hashCode;
-      final exactTimeId = baseId;
-      final tenMinutesId = baseId + 1;
-      final thirtyMinutesId = baseId + 2;
+      // Schedule Exact Time
+      await _scheduleReminder(
+        notificationService,
+        id: baseId + NotificationConstants.exactTimeOffset,
+        title: '⏰ Task Due Now: ${task.title}',
+        body: task.details.isNotEmpty ? task.details : 'Your task is due now!',
+        scheduledDate: exactTime,
+        payload: 'task_${task.id}_exact',
+      );
 
-      if (exactTime.isAfter(DateTime.now())) {
-        await notificationService.scheduleNotification(
-          id: exactTimeId,
-          title: ' Task Due Now: ${task.title}',
-          body: task.details.isNotEmpty
-              ? task.details
-              : 'Your task is due now!',
-          scheduledDate: exactTime,
-          payload: 'task_${task.id}_exact',
-        );
-        _logger.i('Scheduled notification at exact time for task ${task.id}');
-      }
+      // Schedule 10 Minutes Before
+      await _scheduleReminder(
+        notificationService,
+        id: baseId + NotificationConstants.tenMinutesOffset,
+        title: '🔔 Task Due in 10 Minutes: ${task.title}',
+        body: task.details.isNotEmpty
+            ? task.details
+            : 'Your task is due in 10 minutes!',
+        scheduledDate: tenMinutesBefore,
+        payload: 'task_${task.id}_10min',
+      );
 
-      if (tenMinutesBefore.isAfter(DateTime.now())) {
-        await notificationService.scheduleNotification(
-          id: tenMinutesId,
-          title: ' Task Due in 10 Minutes: ${task.title}',
-          body: task.details.isNotEmpty
-              ? task.details
-              : 'Your task is due in 10 minutes!',
-          scheduledDate: tenMinutesBefore,
-          payload: 'task_${task.id}_10min',
-        );
-        _logger.i('Scheduled 10-minute reminder for task ${task.id}');
-      }
-
-      if (thirtyMinutesBefore.isAfter(DateTime.now())) {
-        await notificationService.scheduleNotification(
-          id: thirtyMinutesId,
-          title: ' Task Due in 30 Minutes: ${task.title}',
-          body: task.details.isNotEmpty
-              ? task.details
-              : 'Your task is due in 30 minutes!',
-          scheduledDate: thirtyMinutesBefore,
-          payload: 'task_${task.id}_30min',
-        );
-        _logger.i('Scheduled 30-minute reminder for task ${task.id}');
-      }
+      // Schedule 30 Minutes Before
+      await _scheduleReminder(
+        notificationService,
+        id: baseId + NotificationConstants.thirtyMinutesOffset,
+        title: '📅 Task Due in 30 Minutes: ${task.title}',
+        body: task.details.isNotEmpty
+            ? task.details
+            : 'Your task is due in 30 minutes!',
+        scheduledDate: thirtyMinutesBefore,
+        payload: 'task_${task.id}_30min',
+      );
 
       _logger.i('Successfully scheduled notifications for task ${task.id}');
     } catch (e) {
       _logger.e('Error scheduling notifications for task ${task.id}: $e');
+    }
+  }
+
+  static Future<void> _scheduleReminder(
+    NotificationService service, {
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledDate,
+    required String payload,
+  }) async {
+    if (scheduledDate.isAfter(DateTime.now())) {
+      await service.scheduleNotification(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        payload: payload,
+      );
     }
   }
 
@@ -98,9 +110,15 @@ class TaskNotificationHelper {
       final notificationService = NotificationService();
       final baseId = taskId.hashCode;
 
-      await notificationService.cancelNotification(baseId);
-      await notificationService.cancelNotification(baseId + 1);
-      await notificationService.cancelNotification(baseId + 2);
+      await notificationService.cancelNotification(
+        baseId + NotificationConstants.exactTimeOffset,
+      );
+      await notificationService.cancelNotification(
+        baseId + NotificationConstants.tenMinutesOffset,
+      );
+      await notificationService.cancelNotification(
+        baseId + NotificationConstants.thirtyMinutesOffset,
+      );
 
       _logger.i('Cancelled all notifications for task $taskId');
     } catch (e) {
@@ -111,8 +129,8 @@ class TaskNotificationHelper {
   static DateTime? _parseTaskDateTime(DateTime date, String timeString) {
     try {
       timeString = timeString.trim();
-
       TimeOfDay? timeOfDay;
+
       if (timeString.contains(':')) {
         final parts = timeString.split(':');
         if (parts.length == 2) {

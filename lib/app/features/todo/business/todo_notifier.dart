@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -9,9 +10,31 @@ import 'package:todo_riverpod/app/utils/task_notification_helper.dart';
 class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
   final Repositories api;
   final String userId;
+  StreamSubscription? _todoSubscription;
 
   TodoNotifier(this.api, this.userId) : super(const AsyncValue.loading()) {
-    fetchTodos();
+    _subscribeToTodos();
+  }
+
+  void _subscribeToTodos() {
+    _todoSubscription?.cancel();
+    _todoSubscription = api
+        .getTodoStream(userId)
+        .listen(
+          (todos) {
+            state = AsyncValue.data(todos);
+          },
+          onError: (e, st) {
+            FirebaseCrashlytics.instance.recordError(e, st);
+            state = AsyncValue.error(e, st);
+          },
+        );
+  }
+
+  @override
+  void dispose() {
+    _todoSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> addTodo(TodoModel todo) async {
@@ -23,19 +46,6 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
 
       // Schedule notifications for the task (exact time, 10 min, 30 min before)
       await TaskNotificationHelper.scheduleTaskNotifications(todo);
-
-      await fetchTodos();
-    } catch (e, st) {
-      FirebaseCrashlytics.instance.recordError(e, st);
-      state = AsyncValue.error(e, st);
-    }
-  }
-
-  Future<void> fetchTodos() async {
-    state = const AsyncValue.loading();
-    try {
-      final todos = await api.getTodos(userId);
-      state = AsyncValue.data(todos);
     } catch (e, st) {
       FirebaseCrashlytics.instance.recordError(e, st);
       state = AsyncValue.error(e, st);
@@ -53,6 +63,7 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
           todo,
     ];
 
+    // Optimistic update
     state = AsyncValue.data(updatedTodos);
     try {
       final updatedTodo = updatedTodos.firstWhere((todo) => todo.id == id);
@@ -86,8 +97,6 @@ class TodoNotifier extends StateNotifier<AsyncValue<List<TodoModel>>> {
 
       // Cancel all pending notifications for this task
       await TaskNotificationHelper.cancelTaskNotifications(id);
-
-      await fetchTodos();
     } catch (e, st) {
       FirebaseCrashlytics.instance.recordError(e, st);
       state = AsyncValue.error(e, st);

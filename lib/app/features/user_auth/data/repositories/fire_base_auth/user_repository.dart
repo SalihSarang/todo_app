@@ -37,6 +37,7 @@ class UserRepository {
       'name': user.name,
       'email': user.email,
       if (user.imgURL != null) 'imgURL': user.imgURL,
+      if (user.address != null) 'address': user.address,
     });
   }
 
